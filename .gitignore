@@ -18,6 +18,5 @@ venv.bak/
 *.tmp
 *.old
 *.orig
-static
 .env.local
 .env
