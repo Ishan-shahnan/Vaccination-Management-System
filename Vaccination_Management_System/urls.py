@@ -26,6 +26,7 @@ urlpatterns = [
     path("api/auth/", include("users.urls")),
     # Swagger UI endpoints
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('redoc/', SpectacularSwaggerView.as_view(url_name='schema'), name='redoc'),
 ]
