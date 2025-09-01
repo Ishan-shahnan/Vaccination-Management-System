@@ -19,3 +19,5 @@ venv.bak/
 *.old
 *.orig
 static
+.env.local
+.env
