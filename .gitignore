@@ -18,3 +18,4 @@ venv.bak/
 *.tmp
 *.old
 *.orig
+static
