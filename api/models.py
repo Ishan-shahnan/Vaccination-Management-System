@@ -28,7 +28,7 @@ class Booking(models.Model):
     dose2_status = models.CharField(max_length=20, choices=DoseStatus.choices, default=DoseStatus.PENDING)
 
     def save(self, *args, **kwargs):
-        # auto calculate second dose
+        
         if not self.pk and self.campaign.doses_required > 1:
             self.dose2_date = self.dose1_date + timedelta(days=self.campaign.dose_interval_days)
         super().save(*args, **kwargs)
@@ -37,6 +37,6 @@ class Booking(models.Model):
 class Review(models.Model):
     patient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     campaign = models.ForeignKey(VaccineCampaign, on_delete=models.CASCADE, related_name='reviews')
-    rating = models.PositiveIntegerField()  #validator 1-5
+    rating = models.PositiveIntegerField()  
     comment = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
