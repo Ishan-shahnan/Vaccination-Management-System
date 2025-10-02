@@ -63,7 +63,8 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "django.mid"corsheaders"corsheaders"eadersion_Management_System.urls"
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
 
 AUTH_USER_MODEL = 'users.User'
 
