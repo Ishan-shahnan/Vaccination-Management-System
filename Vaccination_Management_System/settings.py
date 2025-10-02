@@ -66,6 +66,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+ROOT_URLCONF = "Vaccination_Management_System.urls"
+
 AUTH_USER_MODEL = 'users.User'
 
 TEMPLATES = [
