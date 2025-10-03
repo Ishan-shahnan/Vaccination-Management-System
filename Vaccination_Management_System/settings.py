@@ -32,10 +32,7 @@ ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
+CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "http://localhost,https://localhost").split(",")
 
 # Application definition
 
@@ -49,16 +46,17 @@ INSTALLED_APPS = [
     "rest_framework",
     "users",
     "api",
+    "payments",  # Added payments app
     "drf_spectacular",
     "whitenoise.runserver_nostatic",
     "corsheaders",
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -90,9 +88,18 @@ WSGI_APPLICATION = "Vaccination_Management_System.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": dj_database_url.parse(os.environ.get("POSTGRES_URL_NON_POOLING") or os.environ.get("POSTGRES_URL") or "")
-}
+# Use SQLite for local development, PostgreSQL for production
+if os.environ.get("USE_SQLITE", "True") == "True":
+    DATABASES = {
+        "default": {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+else:
+    DATABASES = {
+        "default": dj_database_url.parse(os.environ.get("POSTGRES_URL_NON_POOLING") or os.environ.get("POSTGRES_URL") or "")
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -107,6 +114,27 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+}
+
+# DRF Spectacular settings
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Vaccination Management System API',
+    'DESCRIPTION': 'A comprehensive vaccination management system with SSL Commerz payment integration',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # Fix enum name conflicts
+    'ENUM_NAME_OVERRIDES': {
+        'DoseStatusEnum': 'api.models.Booking.DoseStatus',
+        'BookingTypeEnum': 'api.models.Booking.BookingType',
+        'PaymentStatusEnum': 'api.models.Booking.PaymentStatus',
+        'BookingStatusEnum': 'api.models.Booking.BookingStatus',
+        'ServiceTypeEnum': 'api.models.PremiumService.SERVICE_TYPES',
+        'PaymentMethodEnum': 'payments.models.Payment.PAYMENT_METHOD',
+        'PaymentTransactionStatusEnum': 'payments.models.Payment.PAYMENT_STATUS',
+        'RefundStatusEnum': 'payments.models.PaymentRefund.REFUND_STATUS',
+    },
+    'COMPONENT_SPLIT_REQUEST': True,
+    'COMPONENT_NO_READ_ONLY_REQUIRED': True,
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -148,3 +176,35 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# SSL Commerz Payment Gateway Settings
+SSLCOMMERZ_STORE_ID = os.environ.get("SSLCOMMERZ_STORE_ID", "")
+SSLCOMMERZ_STORE_PASSWORD = os.environ.get("SSLCOMMERZ_STORE_PASSWORD", "")
+SSLCOMMERZ_IS_SANDBOX = os.environ.get("SSLCOMMERZ_IS_SANDBOX", "True") == "True"
+
+# Frontend URL for payment redirects
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'payment.log',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'payments': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
