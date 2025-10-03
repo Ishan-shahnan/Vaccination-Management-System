@@ -44,7 +44,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         refresh = RefreshToken.for_user(user)
         if remember_me:
-            refresh.set_exp(lifetime=timedelta(days=7))  # remember me
+            refresh.set_exp(lifetime=timedelta(days=7))  # Extend token lifetime for "remember me"
 
         return Response({
             'refresh': str(refresh),
@@ -86,7 +86,15 @@ class ChangePasswordView(generics.UpdateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+#         if not user.check_password(value):
+#             raise serializers.ValidationError("Old password is incorrect")
+#         return value
 
+#     def save(self, **kwargs):
+#         user = self.context['request'].user
+#         user.set_password(self.validated_data['new_password'])
+#         user.save()
+#         return user
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = UserLoginSerializer
